@@ -2,4 +2,6 @@
     <string name="app_name">Sparkle</string>
     <string name="login">Login</string>
     <string name="email_id">Email Id</string>
+    <string name="register">Register</string>
+    <string name="name">Name</string>
 </resources>
