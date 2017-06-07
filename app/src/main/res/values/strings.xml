@@ -4,4 +4,6 @@
     <string name="email_id">Email Id</string>
     <string name="register">Register</string>
     <string name="name">Name</string>
+    <string name="err_msg_email">Email Address not valid</string>
+    <string name="err_msg_pass">Password must be at least 8 character</string>
 </resources>
