@@ -6,4 +6,8 @@
     <string name="name">Name</string>
     <string name="err_msg_email">Email Address not valid</string>
     <string name="err_msg_pass">Password must be at least 8 character</string>
+    <string name="err_msg_name">Invalid Name</string>
+    <string name="err_msg_cpass">Password dont match</string>
+    <string name="err_msg_pin">Invalid Pin Code</string>
+    <string name="err_msg_contact">Invalid Mobile number</string>
 </resources>

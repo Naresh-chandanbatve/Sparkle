@@ -83,7 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:hint="Enter Contact number"
+        android:hint="Enter Mobile number"
         android:id="@+id/et_rg_contact"/>
     </android.support.design.widget.TextInputLayout>
 
@@ -121,7 +121,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter City"
+        android:hint="City"
         android:layout_margin="8dp"
         android:id="@+id/et_rg_city"/>
     </android.support.design.widget.TextInputLayout>
@@ -134,7 +134,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter State"
+        android:hint="State"
         android:layout_margin="8dp"
         android:id="@+id/et_rg_state"/>
     </android.support.design.widget.TextInputLayout>
@@ -147,7 +147,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Pincode"
+        android:hint="Pincode"
         android:layout_margin="8dp"
         android:id="@+id/et_rg_pin"/>
     </android.support.design.widget.TextInputLayout>
