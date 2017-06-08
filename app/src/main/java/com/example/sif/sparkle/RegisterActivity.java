@@ -1,6 +1,8 @@
 package com.example.sif.sparkle;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +15,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,11 +39,14 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout inputLayoutContact, inputLayoutPin;
     private EditText inputName,inputEmail,inputPass,inputCPass,inputAdd1,inputAdd2,inputCity;
     private EditText inputState,inputPin,inputContact;
+    private ProgressDialog pd;
 
     private String PIN_PATTERN="[0-9]{6}";
     private String CONTACT_PATTERN="[9,8,7]{1}[0-9]{9}";
     private Pattern pattern;
     private Matcher matcher;
+
+    private String REGISTER_URL="https://techstart.000webhostapp.com/reg_user.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +74,15 @@ public class RegisterActivity extends AppCompatActivity {
         inputState=(EditText)reg_layout.findViewById(R.id.et_rg_state);
         inputPin=(EditText)reg_layout.findViewById(R.id.et_rg_pin);
 
+        pd=new ProgressDialog(this);
+
         regButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 hideKeyboard();
                 if(ifValidRegister()){
                     //register user
-                    Toast.makeText(RegisterActivity.this,"Register success",Toast.LENGTH_SHORT).show();
+                    sendRequest();
                 }
                 else {
                     Toast.makeText(RegisterActivity.this,"Some Error",Toast.LENGTH_SHORT).show();
@@ -207,6 +227,62 @@ public class RegisterActivity extends AppCompatActivity {
         if (view.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+    }
+
+    void sendRequest(){
+
+        pd.setMessage("Please wait...");
+        pd.show();
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, REGISTER_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject=new JSONObject(response);
+                            SharedPreferences sharedPreferences = getApplicationContext()
+                                    .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            if(!jsonObject.getString("status").equals("error"))
+                            editor.putString("uid",jsonObject.getString("uid"));
+                            else {
+                                if(jsonObject.getString("ecode").equals("1"))
+                                    editor.putString("uid","try again");
+                                if(jsonObject.getString("ecode").equals("2"))
+                                    editor.putString("uid","duplicate");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        pd.cancel();
+                        Toast.makeText(RegisterActivity.this,"Register success",Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pd.cancel();
+                Toast.makeText(RegisterActivity.this,error.toString(),Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String ,String> params=new HashMap<>();
+                params.put("name",inputName.getText().toString().trim());
+                params.put("email",inputEmail.getText().toString().trim());
+                params.put("pass",inputPass.getText().toString().trim());
+                params.put("mob",inputContact.getText().toString().trim());
+                params.put("add1",inputAdd1.getText().toString().trim());
+                params.put("add2",inputAdd2.getText().toString().trim());
+                params.put("city",inputCity.getText().toString().trim());
+                params.put("state",inputState.getText().toString().trim());
+                params.put("pin",inputPin.getText().toString().trim());
+
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
     }
 
 }

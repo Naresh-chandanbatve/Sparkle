@@ -10,4 +10,5 @@
     <string name="err_msg_cpass">Password dont match</string>
     <string name="err_msg_pin">Invalid Pin Code</string>
     <string name="err_msg_contact">Invalid Mobile number</string>
+    <string name="shared_pref">sparkle.pref</string>
 </resources>
