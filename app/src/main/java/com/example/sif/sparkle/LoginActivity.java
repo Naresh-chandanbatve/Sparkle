@@ -108,6 +108,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             if(jsonObject.getString("status").equals("ok")) {
                                 editor.putString("uid", jsonObject.getString("uid"));
+
+                                editor.putString("name",jsonObject.getString("name"));
+                                editor.putString("email",jsonObject.getString("email"));
+                                editor.putString("pass",jsonObject.getString("password"));
+                                editor.putString("contact",jsonObject.getString("mobile"));
+                                editor.putString("add1",jsonObject.getString("add1"));
+                                editor.putString("add2",jsonObject.getString("add2"));
+                                editor.putString("city",jsonObject.getString("city"));
+                                editor.putString("state",jsonObject.getString("state"));
+                                editor.putString("pin",jsonObject.getString("pincode"));
+
                                 pd.cancel();
                                 Toast.makeText(LoginActivity.this,"Login successful",Toast.LENGTH_SHORT).show();
                                 Intent i=new Intent(LoginActivity.this,HomeActivity.class);

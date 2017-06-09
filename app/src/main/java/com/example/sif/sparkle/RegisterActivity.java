@@ -29,8 +29,10 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -247,6 +249,17 @@ public class RegisterActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             if(jsonObject.getString("status").equals("ok")) {
                                 editor.putString("uid", jsonObject.getString("uid"));
+
+                                editor.putString("name",inputName.getText().toString().trim());
+                                editor.putString("email",inputEmail.getText().toString().trim());
+                                editor.putString("pass",inputPass.getText().toString().trim());
+                                editor.putString("contact",inputContact.getText().toString().trim());
+                                editor.putString("add1",inputAdd1.getText().toString().trim());
+                                editor.putString("add2",inputAdd2.getText().toString().trim());
+                                editor.putString("city",inputCity.getText().toString().trim());
+                                editor.putString("state",inputState.getText().toString().trim());
+                                editor.putString("pin",inputPin.getText().toString().trim());
+
                                 pd.cancel();
                                 Toast.makeText(RegisterActivity.this,"Register success",Toast.LENGTH_SHORT).show();
                                 Intent i=new Intent(RegisterActivity.this,HomeActivity.class);
