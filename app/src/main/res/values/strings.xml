@@ -11,4 +11,13 @@
     <string name="err_msg_pin">Invalid Pin Code</string>
     <string name="err_msg_contact">Invalid Mobile number</string>
     <string name="shared_pref">sparkle.pref</string>
+    <string name="err_connection">Please check the internet connection</string>
+    <string name="err_login">Wrong credentials</string>
+
+    <string name="title_activity_home">HomeActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

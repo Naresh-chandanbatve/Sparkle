@@ -2,9 +2,12 @@ package com.example.sif.sparkle;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -85,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
                     sendRequest();
                 }
                 else {
-                    Toast.makeText(RegisterActivity.this,"Some Error",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this,"Please enter a valid input",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -242,26 +245,40 @@ public class RegisterActivity extends AppCompatActivity {
                             SharedPreferences sharedPreferences = getApplicationContext()
                                     .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
-                            if(!jsonObject.getString("status").equals("error"))
-                            editor.putString("uid",jsonObject.getString("uid"));
-                            else {
-                                if(jsonObject.getString("ecode").equals("1"))
-                                    editor.putString("uid","try again");
-                                if(jsonObject.getString("ecode").equals("2"))
-                                    editor.putString("uid","duplicate");
+                            if(jsonObject.getString("status").equals("ok")) {
+                                editor.putString("uid", jsonObject.getString("uid"));
+                                pd.cancel();
+                                Toast.makeText(RegisterActivity.this,"Register success",Toast.LENGTH_SHORT).show();
+                                Intent i=new Intent(RegisterActivity.this,HomeActivity.class);
+                                startActivity(i);
+                                finishAffinity();
                             }
+                            else {
+                                editor.putString("uid",jsonObject.getString("uid"));
+                                String errorMsg=jsonObject.getString("error");
+                                pd.cancel();
+
+                                final AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(RegisterActivity.this);
+                                dlgAlert.setMessage(errorMsg);
+                                dlgAlert.setTitle("Register Error");
+                                dlgAlert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                });
+                                dlgAlert.setCancelable(true);
+                                dlgAlert.create().show();
+                            }
+                            editor.commit();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        pd.cancel();
-                        Toast.makeText(RegisterActivity.this,"Register success",Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 pd.cancel();
-                Toast.makeText(RegisterActivity.this,error.toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this,getString(R.string.err_connection),Toast.LENGTH_SHORT).show();
             }
         }){
             @Override
