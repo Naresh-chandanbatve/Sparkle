@@ -9,12 +9,6 @@
     android:orientation="vertical"
     android:background="@drawable/maple_background">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:src="@drawable/login"
-        android:scaleType="centerCrop"/>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -23,10 +17,11 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp">
         <android.support.v7.widget.CardView
+            android:layout_gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            app:cardCornerRadius="15sp">
+            app:cardCornerRadius="15dp">
             <include layout="@layout/login_layout"
                 android:id="@+id/login_include"/>
         </android.support.v7.widget.CardView>

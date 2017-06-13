@@ -38,7 +38,7 @@ import java.util.Set;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView reg,errText;
+    private TextView errText;
     private View login_layout;
     private Button loginButton;
     private TextInputLayout inputLayoutEmail, inputLayoutPassword;
@@ -54,7 +54,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         //Initialization
         login_layout=findViewById(R.id.login_include);
-        reg=(TextView)login_layout.findViewById(R.id.tv_register);
         loginButton=(Button)login_layout.findViewById(R.id.button);
         inputLayoutEmail=(TextInputLayout) login_layout.findViewById(R.id.etEmailLayout);
         inputLayoutPassword=(TextInputLayout) login_layout.findViewById(R.id.etPasswordLayout);
@@ -64,9 +63,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         pd=new ProgressDialog(this);
 
         ifLoggedin();
-
-        //Register OnClick
-        reg.setOnClickListener(this);
 
         //Login OnClick
         loginButton.setOnClickListener(this);
@@ -83,10 +79,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                    //login user
                     loginUser();
                 }
-                break;
-            case R.id.tv_register:
-                Intent i=new Intent(this,RegisterActivity.class);
-                startActivity(i);
                 break;
             default:break;
         }

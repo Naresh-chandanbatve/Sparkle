@@ -23,6 +23,7 @@
         <activity
             android:name=".ProfileActivity"
             android:parentActivityName=".HomeActivity" />
+<<<<<<< HEAD
 
         <activity android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -31,7 +32,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+=======
         <activity android:name=".UserLogin"></activity>
+>>>>>>> 4febd883136025bcc6f10b046344b927100d65fe
     </application>
 
 </manifest>
