@@ -63,13 +63,5 @@
         android:layout_gravity="center"
         android:background="@drawable/btn_resourse"
         android:id="@+id/button" />
-    <TextView
-        android:id="@+id/tv_register"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No Account? Register Here"
-        android:layout_marginTop="24dp"
-        android:layout_gravity="center"
-        android:clickable="true"/>
 
 </LinearLayout>
