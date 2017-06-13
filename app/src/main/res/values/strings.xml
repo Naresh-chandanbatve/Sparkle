@@ -22,4 +22,6 @@
     <string name="action_profile">My Profile</string>
     <string name="action_logout">Logout</string>
 
+    <string name="facebook_app_id">110055452936295</string>
+
 </resources>
