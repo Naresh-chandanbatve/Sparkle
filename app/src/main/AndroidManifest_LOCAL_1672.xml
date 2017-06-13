@@ -13,10 +13,6 @@
         android:theme="@style/AppTheme"
         android:name=".App">
         <activity android:name=".LoginActivity"></activity>
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
-
         <activity
             android:name=".RegisterActivity"
             android:parentActivityName=".LoginActivity" />
@@ -35,8 +31,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UserLogin"></activity>
-        <activity android:name=".EditProfile"/>
+
     </application>
 
 </manifest>
