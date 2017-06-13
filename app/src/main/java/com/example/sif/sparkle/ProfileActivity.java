@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -40,13 +41,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private TextView name,pass,mob,email,add1,add2,city,state,pin;
     private View layout_profile;
     private RelativeLayout passLayout;
-    private Button changePassword,cancel;
+    private Button changePassword,cancel,cancel1,editProfileButton;
     private EditText oldpass,newpass1,newpass2;
     private TextInputLayout oldpassLayout,newPass1Layout,newPass2Layout;
-    private View confirmDialog;
+    private View confirmDialog,editProfile;
     private LayoutInflater inflater;
     private AlertDialog alertDialog;
     private SharedPreferences sharedPreferences;
+    private FloatingActionButton editFab;
 
     private final static String CHANGE_PASS_URL="https://techstart.000webhostapp.com/change_pass.php";
 
@@ -57,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         inflater = LayoutInflater.from(this);
         confirmDialog=inflater.inflate(R.layout.change_pass_layout,null);
-
+        editProfile=inflater.inflate(R.layout.edit_profile_layout,null);
 
 
         //Initialization
@@ -74,6 +76,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         state=(TextView)layout_profile.findViewById(R.id.tv_state);
         pin=(TextView)layout_profile.findViewById(R.id.tv_pin);
         passLayout=(RelativeLayout)layout_profile.findViewById(R.id.rl_passLayout);
+
+
         oldpassLayout=(TextInputLayout)confirmDialog.findViewById(R.id.oldpassWrapper);
         newPass1Layout=(TextInputLayout)confirmDialog.findViewById(R.id.newpass1Wrapper);
         newPass2Layout=(TextInputLayout)confirmDialog.findViewById(R.id.newpass2Wrapper);
@@ -82,6 +86,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         newpass1=(EditText)confirmDialog.findViewById(R.id.et_newpass1);
         newpass2=(EditText)confirmDialog.findViewById(R.id.et_newpass2);
         cancel=(Button)confirmDialog.findViewById(R.id.btn_cancel);
+        editFab=(FloatingActionButton)findViewById(R.id.fab_edit_profile);
+
+        cancel1=(Button)editProfile.findViewById(R.id.btn_cancel);
+        editProfileButton=(Button)editProfile.findViewById(R.id.btn_edit_profile);
 
         sharedPreferences=getApplicationContext()
                 .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
@@ -99,10 +107,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         changePassword.setOnClickListener(this);
 
+        editFab.setOnClickListener(this);
+
         profileWrapper.setImageResource(R.drawable.white);
         profile.setImageResource(R.drawable.default_profile_pic);
         pass.setOnClickListener(this);
         cancel.setOnClickListener(this);
+        cancel1.setOnClickListener(this);
+        editProfileButton.setOnClickListener(this);
 
     }
 
@@ -142,6 +154,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         if(id==R.id.btn_cancel){
             hideKeyboard();
             alertDialog.dismiss();
+        }
+
+        if(id==R.id.fab_edit_profile){
+            Intent i=new Intent(ProfileActivity.this,EditProfile.class);
+            startActivity(i);
         }
     }
 

@@ -32,6 +32,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".UserLogin"></activity>
+        <activity android:name=".EditProfile"/>
     </application>
 
 </manifest>
