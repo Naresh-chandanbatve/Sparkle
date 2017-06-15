@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,12 +20,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
+
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private boolean doubleBackToExitPressedOnce=false;
     private CoordinatorLayout content;
+    private RecyclerView recyclerView;
+    private ProductAdaptor adaptor;
+    private LinearLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +39,6 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -52,7 +51,39 @@ public class HomeActivity extends AppCompatActivity
 
         //Initialization
         content=(CoordinatorLayout)findViewById(R.id.coordinatorLayout);
+        recyclerView=(RecyclerView)findViewById(R.id.rv_product);
+        layoutManager=new LinearLayoutManager(HomeActivity.this);
 
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.hasFixedSize();
+
+        Product one =new Product(1,"IceCream","Amul IceCream","Amul IceCream with chocolate syrup",4.2,50,null);
+        Product two =new Product(2,"IceCream","Vadilal IceCream","Vadilal IceCream with chocolate syrup",2.5,50,null);
+        Product three =new Product(3,"Laptop","Acer Laptop","Acer Laptop with High end specifications",5.0,50000,null);
+        Product four =new Product(4,"Milk","Amul milk","Amul milk with cream",3.5,26,null);
+        Product five =new Product(5,"Curd","Amul Dahi","Amul IceCream with chocolate syrup",3.6,10,null);
+        Product six =new Product(8,"Soap","Dettol Soap","Amul IceCream with chocolate syrup",4.8,20,null);
+        Product seven =new Product(7,"HandWash","Dettol HandWash","Amul IceCream with chocolate syrup",2.2,60,null);
+        Product eight =new Product(8,"Ghee","Amul Ghee","Amul IceCream with chocolate syrup",2.6,200,null);
+
+        ArrayList<Product> products=new ArrayList<>();
+        products.add(one);
+        products.add(two);
+        products.add(three);
+        products.add(four);
+        products.add(five);
+        products.add(six);
+        products.add(seven);
+        products.add(eight);
+        products.add(one);
+        products.add(one);
+        products.add(one);
+        products.add(one);
+        products.add(one);
+        products.add(one);
+
+        adaptor=new ProductAdaptor(products,HomeActivity.this);
+        recyclerView.setAdapter(adaptor);
     }
 
     @Override
