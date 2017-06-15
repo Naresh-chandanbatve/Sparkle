@@ -1,38 +1,22 @@
 package com.example.sif.sparkle;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-
-import java.security.MessageDigest;
 
 public class UserLogin extends AppCompatActivity {
 
     Button login_button, register_button;
     ImageButton facebook_button, google_button;
-    CallbackManager callbackManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_user_login);
 
         login_button = (Button) findViewById(R.id.btn_login_button);
@@ -53,13 +37,19 @@ public class UserLogin extends AppCompatActivity {
             }
         });
 
-        callbackManager = CallbackManager.Factory.create();
+        ifLoggedin();
+    }
 
-        facebook_button = (ImageButton) findViewById(R.id.facebook_button);
-        facebook_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {}});
+    private void ifLoggedin(){
+        SharedPreferences sharedPreferences = getApplicationContext()
+                .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
+        int uid = Integer.parseInt(sharedPreferences.getString("uid","-1"));
 
+        if(uid!=-1) {
+            Intent i = new Intent(UserLogin.this,HomeActivity.class);
+            startActivity(i);
+            finishAffinity();
+        }
     }
 
 }

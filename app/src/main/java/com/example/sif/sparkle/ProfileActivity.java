@@ -1,5 +1,6 @@
 package com.example.sif.sparkle;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,6 +50,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private AlertDialog alertDialog;
     private SharedPreferences sharedPreferences;
     private FloatingActionButton editFab;
+    private ProgressDialog pd;
 
     private final static String CHANGE_PASS_URL="https://techstart.000webhostapp.com/change_pass.php";
 
@@ -87,6 +89,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         newpass2=(EditText)confirmDialog.findViewById(R.id.et_newpass2);
         cancel=(Button)confirmDialog.findViewById(R.id.btn_cancel);
         editFab=(FloatingActionButton)findViewById(R.id.fab_edit_profile);
+        pd=new ProgressDialog(this);
 
         cancel1=(Button)editProfile.findViewById(R.id.btn_cancel);
         editProfileButton=(Button)editProfile.findViewById(R.id.btn_edit_profile);
@@ -115,6 +118,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         cancel.setOnClickListener(this);
         cancel1.setOnClickListener(this);
         editProfileButton.setOnClickListener(this);
+
+        pd.setMessage("Please wait...");
 
     }
 
@@ -178,6 +183,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         if(password.equals(enteredPass)){
             alertDialog.dismiss();
 
+            pd.show();
             StringRequest stringRequest=new StringRequest(Request.Method.POST, CHANGE_PASS_URL,
                     new Response.Listener<String>() {
                         @Override
@@ -189,21 +195,25 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                                     SharedPreferences.Editor editor=sharedPreferences.edit();
                                     editor.putString("pass",jsonObject.getString("pass"));
                                     editor.commit();
+                                    pd.dismiss();
                                     Toast.makeText(ProfileActivity.this,
                                             "Password changed", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
                                     String err=jsonObject.getString("error");
+                                    pd.dismiss();
                                     Toast.makeText(ProfileActivity.this,
                                             err, Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
+                                pd.dismiss();
                                 e.printStackTrace();
                             }
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    pd.dismiss();
                     Toast.makeText(ProfileActivity.this,getString(R.string.err_connection),Toast.LENGTH_SHORT).show();
                 }
             }){
