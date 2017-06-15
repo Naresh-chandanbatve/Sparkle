@@ -2,6 +2,7 @@ package com.example.sif.sparkle;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -21,10 +24,16 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
 
     private ArrayList<Product> list;
     private Context ctx;
+    private OnItemClickListener listener;
 
-    ProductAdaptor(ArrayList<Product> list ,Context ctx){
+    public interface OnItemClickListener{
+        void onItemClick(Product product, int position);
+    }
+
+    ProductAdaptor(ArrayList<Product> list ,Context ctx,OnItemClickListener listener){
         this.list=list;
         this.ctx=ctx;
+        this.listener=listener;
     }
 
     @Override
@@ -46,7 +55,7 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
 
         if(p.getRating()>=3.5){
             holder.ratingView.setBackgroundColor(ContextCompat.getColor(ctx,R.color.colorGreen));
-        }else if(p.getRating()>2.5){
+        }else if(p.getRating()>=2.5){
             holder.ratingView.setBackgroundColor(ContextCompat.getColor(ctx,R.color.colorOrange));
         }
         else {
@@ -58,7 +67,17 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
         else
             holder.image.setImageResource(R.mipmap.ic_launcher);
 
-        holder.price.setText("Rs. "+p.getPrice());
+        holder.price.setText("Rs. "+p.getSellingPrice());
+
+        if(p.getDicount()!=0){
+            holder.cp.setVisibility(View.VISIBLE);
+            holder.cp.setText(p.getPrice()+"");
+            holder.cp.setPaintFlags(holder.cp.getPaintFlags()| Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.discount.setVisibility(View.VISIBLE);
+            holder.discount.setText(p.getDicount()+"% off");
+        }
+
+        holder.bind(p,listener);
     }
 
     @Override
@@ -72,7 +91,7 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
         private TextView price,rating;
         private ImageView image;
         private View ratingView;
-        private LinearLayout ratingBackground;
+        private TextView cp,discount;
 
         public ProductViewHolder(View itemView) {
             super(itemView);
@@ -82,7 +101,17 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
             price=(TextView)itemView.findViewById(R.id.tv_price);
             rating=(TextView)ratingView.findViewById(R.id.rating_text);
             image=(ImageView)itemView.findViewById(R.id.iv_product);
-            //ratingBackground=(LinearLayout)ratingView.findViewById(R.id.rating_background);
+            cp=(TextView)itemView.findViewById(R.id.tv_costPrice);
+            discount=(TextView)itemView.findViewById(R.id.tv_discount);
         }
+
+        public void bind(final Product item, final OnItemClickListener listener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onItemClick(item,getAdapterPosition());
+                }
+            });
+        }
+
     }
 }

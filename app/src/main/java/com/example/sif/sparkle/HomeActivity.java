@@ -2,6 +2,8 @@ package com.example.sif.sparkle;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -19,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -57,14 +60,16 @@ public class HomeActivity extends AppCompatActivity
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.hasFixedSize();
 
-        Product one =new Product(1,"IceCream","Amul IceCream","Amul IceCream with chocolate syrup",4.2,50,null);
-        Product two =new Product(2,"IceCream","Vadilal IceCream","Vadilal IceCream with chocolate syrup",2.5,50,null);
-        Product three =new Product(3,"Laptop","Acer Laptop","Acer Laptop with High end specifications",5.0,50000,null);
-        Product four =new Product(4,"Milk","Amul milk","Amul milk with cream",3.5,26,null);
-        Product five =new Product(5,"Curd","Amul Dahi","Amul IceCream with chocolate syrup",3.6,10,null);
-        Product six =new Product(8,"Soap","Dettol Soap","Amul IceCream with chocolate syrup",4.8,20,null);
-        Product seven =new Product(7,"HandWash","Dettol HandWash","Amul IceCream with chocolate syrup",2.2,60,null);
-        Product eight =new Product(8,"Ghee","Amul Ghee","Amul IceCream with chocolate syrup",2.6,200,null);
+        Bitmap icon= BitmapFactory.decodeResource(getResources(), R.drawable.login);
+
+        Product one =new Product(1,"IceCream","Amul IceCream","Amul IceCream with chocolate syrup",4.2,50,icon,20);
+        Product two =new Product(2,"IceCream","Vadilal IceCream","Vadilal IceCream with chocolate syrup",2.5,50,null,0);
+        Product three =new Product(3,"Laptop","Acer Laptop","Acer Laptop with High end specifications",5.0,50000,null,25);
+        Product four =new Product(4,"Milk","Amul milk","Amul milk with cream",3.5,26,null,0);
+        Product five =new Product(5,"Curd","Amul Dahi","Amul IceCream with chocolate syrup",3.6,10,null,0);
+        Product six =new Product(8,"Soap","Dettol Soap","Amul IceCream with chocolate syrup",4.8,20,null,0);
+        Product seven =new Product(7,"HandWash","Dettol HandWash","Amul IceCream with chocolate syrup",2.2,60,null,0);
+        Product eight =new Product(8,"Ghee","Amul Ghee","Amul IceCream with chocolate syrup",2.6,200,null,0);
 
         ArrayList<Product> products=new ArrayList<>();
         products.add(one);
@@ -82,7 +87,12 @@ public class HomeActivity extends AppCompatActivity
         products.add(one);
         products.add(one);
 
-        adaptor=new ProductAdaptor(products,HomeActivity.this);
+        adaptor=new ProductAdaptor(products, HomeActivity.this, new ProductAdaptor.OnItemClickListener() {
+            @Override
+            public void onItemClick(Product product,int position) {
+                Toast.makeText(HomeActivity.this,"Item "+position+" clicked",Toast.LENGTH_SHORT).show();
+            }
+        });
         recyclerView.setAdapter(adaptor);
     }
 
