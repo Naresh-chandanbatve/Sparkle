@@ -147,7 +147,7 @@ public class HomeActivity extends AppCompatActivity
             SharedPreferences.Editor editor=sharedPreferences.edit();
             editor.putString("uid","-1");
             editor.commit();
-            Intent i = new Intent(HomeActivity.this,LoginActivity.class);
+            Intent i = new Intent(HomeActivity.this,UserLogin.class);
             startActivity(i);
             finishAffinity();
         }

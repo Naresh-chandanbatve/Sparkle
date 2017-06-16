@@ -110,7 +110,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 editor.putString("city",jsonObject.getString("city"));
                                 editor.putString("state",jsonObject.getString("state"));
                                 editor.putString("pin",jsonObject.getString("pincode"));
-
+                                if(!jsonObject.getString("url").equals("null")) {
+                                    editor.putString("url",jsonObject.getString("url"));
+                                    editor.putString("img_string","-1");
+                                }
+                                else {
+                                    editor.putString("url","0");
+                                    editor.putString("img_string","0");
+                                }
                                 pd.cancel();
                                 Toast.makeText(LoginActivity.this,"Login successful",Toast.LENGTH_SHORT).show();
                                 Intent i=new Intent(LoginActivity.this,HomeActivity.class);

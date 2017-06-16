@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+<ImageView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/default_profile_pic"
+    android:layout_gravity="center"
+    android:id="@+id/iv_inflate_profile" />
+
+    <ImageButton
+        android:layout_margin="8dp"
+        android:id="@+id/ib_inflate_profie_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/ic_menu_edit"
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/iv_inflate_profile" />
+
+    <Button
+        android:id="@+id/btn_inflate_profile_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="save"
+        android:layout_marginTop="16dp"
+        android:layout_below="@id/iv_inflate_profile"
+        android:layout_alignEnd="@+id/iv_inflate_profile" />
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="cancel"
+        android:layout_marginTop="16dp"
+        android:layout_below="@id/iv_inflate_profile"
+        android:layout_alignStart="@+id/iv_inflate_profile" />
+</RelativeLayout>
+    </ScrollView>

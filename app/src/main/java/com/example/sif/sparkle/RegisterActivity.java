@@ -259,6 +259,8 @@ public class RegisterActivity extends AppCompatActivity {
                                 editor.putString("city",inputCity.getText().toString().trim());
                                 editor.putString("state",inputState.getText().toString().trim());
                                 editor.putString("pin",inputPin.getText().toString().trim());
+                                editor.putString("url","0");
+                                editor.putString("img_string","0");
 
                                 pd.cancel();
                                 Toast.makeText(RegisterActivity.this,"Register success",Toast.LENGTH_SHORT).show();

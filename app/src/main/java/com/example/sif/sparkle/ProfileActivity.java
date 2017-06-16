@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +23,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +48,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import static com.example.sif.sparkle.R.id.imageView;
+import static java.lang.System.load;
 
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
@@ -55,13 +60,15 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private Button changePassword,cancel,cancel1,editProfileButton;
     private EditText oldpass,newpass1,newpass2;
     private TextInputLayout oldpassLayout,newPass1Layout,newPass2Layout;
-    private View confirmDialog,editProfile;
+    private View confirmDialog,editProfileLayout;
     private LayoutInflater inflater;
     private AlertDialog alertDialog;
     private SharedPreferences sharedPreferences;
     private FloatingActionButton editFab,editProfilePic;
     private ProgressDialog pd;
     private Bitmap bitmap;
+    private ImageButton editProfilePicButton;
+    private ImageView inflateProfileImage;
 
     private int PICK_IMAGE_REQUEST = 1;
     private final static String CHANGE_PASS_URL="https://techstart.000webhostapp.com/change_pass.php";
@@ -74,7 +81,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         inflater = LayoutInflater.from(this);
         confirmDialog=inflater.inflate(R.layout.change_pass_layout,null);
-        editProfile=inflater.inflate(R.layout.edit_profile_layout,null);
+        editProfileLayout=inflater.inflate(R.layout.profile_picture_layout,null);
 
 
         //Initialization
@@ -105,8 +112,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         editProfilePic=(FloatingActionButton)findViewById(R.id.fab_edit_profileImage);
         pd=new ProgressDialog(this);
 
-        cancel1=(Button)editProfile.findViewById(R.id.btn_cancel);
-        editProfileButton=(Button)editProfile.findViewById(R.id.btn_edit_profile);
+        cancel1=(Button)editProfileLayout.findViewById(R.id.btn_cancel);
+        editProfileButton=(Button)editProfileLayout.findViewById(R.id.btn_inflate_profile_save);
+        editProfilePicButton=(ImageButton)editProfileLayout.findViewById(R.id.ib_inflate_profie_edit);
+        inflateProfileImage=(ImageView)editProfileLayout.findViewById(R.id.iv_inflate_profile);
 
         sharedPreferences=getApplicationContext()
                 .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
@@ -129,23 +138,50 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         profileWrapper.setImageResource(R.drawable.white);
 
+
         pass.setOnClickListener(this);
         cancel.setOnClickListener(this);
         cancel1.setOnClickListener(this);
         editProfileButton.setOnClickListener(this);
+        editProfilePicButton.setOnClickListener(this);
 
         pd.setMessage("Please wait...");
 
-        setProfileImage();
+        if(sharedPreferences.getString("img_string","-1").equals("-1")) {
+            setProfileImage();
+            catcheImage();
+        }
+        else if(!sharedPreferences.getString("img_string","0").equals("0")) {
+            setProfileImageFromCache(sharedPreferences.getString("img_string","0"));
+        }
     }
 
+    private void catcheImage() {
+        Bitmap bitmap=((BitmapDrawable)profile.getDrawable()).getBitmap();
+        String imgString=getStringImage(bitmap);
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        editor.putString("img_string",imgString);
+    }
+
+    private void setProfileImageFromCache(String encoded) {
+        if(!encoded.equals("0")) {
+            byte[] imageAsBytes = Base64.decode(encoded.getBytes(), Base64.DEFAULT);
+            profile.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
+        }
+        else {
+            profile.setImageResource(R.drawable.default_profile_pic);
+        }
+    }
+
+
     private void setProfileImage() {
-        String url=sharedPreferences.getString("url","000");
-        if(!url.equals("000")){
+        String url=sharedPreferences.getString("url","0");
+        if(!url.equals("0")){
+            Picasso.with(this).invalidate(url);
             Picasso.with(this)
                     .load(url)
                     .placeholder(R.drawable.default_profile_pic) // optional
-                    .error(R.drawable.break_profile)         // optional
+                    .error(R.drawable.break_profile)// optional
                     .into(profile);
         }
         else {
@@ -171,7 +207,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         if(id==R.id.rl_passLayout||id==R.id.tv_changePassword) {
-            Toast.makeText(ProfileActivity.this, "Change password Clicked", Toast.LENGTH_SHORT).show();
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             if(confirmDialog.getParent()!=null)
                 ((ViewGroup)confirmDialog.getParent()).removeView(confirmDialog);
@@ -192,12 +227,32 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         if(id==R.id.fab_edit_profile){
-//            Intent i=new Intent(ProfileActivity.this,EditProfile.class);
-//            startActivity(i);
-            uploadImage();
+            Intent i=new Intent(ProfileActivity.this,EditProfile.class);
+            startActivity(i);
         }
 
         if(id==R.id.fab_edit_profileImage){
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            if(editProfileLayout.getParent()!=null)
+                ((ViewGroup)editProfileLayout.getParent()).removeView(editProfileLayout);
+            alert.setView(editProfileLayout);
+            alertDialog = alert.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.setCancelable(false);
+            alertDialog.show();
+            Bitmap bitmap = ((BitmapDrawable)profile.getDrawable()).getBitmap();
+            inflateProfileImage.setImageBitmap(bitmap);
+        }
+        if(id==R.id.btn_inflate_profile_save){
+            if(bitmap!=null) {
+                uploadImage();
+                alertDialog.dismiss();
+            }
+            else {
+                Toast.makeText(this,"Select an image first",Toast.LENGTH_SHORT).show();
+            }
+        }
+        if(id==R.id.ib_inflate_profie_edit){
             showFileChooser();
         }
     }
@@ -219,7 +274,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 //Getting the Bitmap from Gallery
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 //Setting the Bitmap to ImageView
-                profile.setImageBitmap(bitmap);
+                inflateProfileImage.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -249,6 +304,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                             if(jsonObject.getString("status").equals("ok")){
                                 SharedPreferences.Editor editor=sharedPreferences.edit();
                                 editor.putString("url",jsonObject.getString("url"));
+                                editor.putString("img_string",jsonObject.getString("img_string"));
                                 editor.commit();
                             }else{
                                 Toast.makeText(ProfileActivity.this, jsonObject.getString("error"), Toast.LENGTH_SHORT).show();

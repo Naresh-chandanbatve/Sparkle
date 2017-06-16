@@ -36,13 +36,13 @@
                     android:id="@+id/circleViewOverlay"
                     android:layout_width="200dp"
                     android:layout_height="200dp"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"/>
 
                 <com.example.sif.sparkle.RoundedImageView
                     android:id="@+id/circleView"
                     android:layout_width="190dp"
                     android:layout_height="190dp"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"/>
 
             </FrameLayout>
 
