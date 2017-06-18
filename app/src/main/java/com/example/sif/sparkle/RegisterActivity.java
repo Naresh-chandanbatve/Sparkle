@@ -236,6 +236,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     void sendRequest(){
 
+        pd.setTitle("Registering");
         pd.setMessage("Please wait...");
         pd.show();
         StringRequest stringRequest=new StringRequest(Request.Method.POST, REGISTER_URL,

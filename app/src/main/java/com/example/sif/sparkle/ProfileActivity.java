@@ -36,6 +36,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -46,9 +48,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
-import static com.example.sif.sparkle.R.id.imageView;
-import static java.lang.System.load;
 
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
@@ -147,35 +146,18 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         pd.setMessage("Please wait...");
 
-        if(sharedPreferences.getString("img_string","-1").equals("-1")) {
-            setProfileImage();
-            catcheImage();
-        }
-        else if(!sharedPreferences.getString("img_string","0").equals("0")) {
-            setProfileImageFromCache(sharedPreferences.getString("img_string","0"));
-        }
-    }
-
-    private void catcheImage() {
-        Bitmap bitmap=((BitmapDrawable)profile.getDrawable()).getBitmap();
-        String imgString=getStringImage(bitmap);
-        SharedPreferences.Editor editor=sharedPreferences.edit();
-        editor.putString("img_string",imgString);
-    }
-
-    private void setProfileImageFromCache(String encoded) {
-        if(!encoded.equals("0")) {
-            byte[] imageAsBytes = Base64.decode(encoded.getBytes(), Base64.DEFAULT);
-            profile.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length));
+        if(!sharedPreferences.getString("url","0").equals("0")) {
+            String url=sharedPreferences.getString("url","0");
+            setProfileImage(url);
         }
         else {
             profile.setImageResource(R.drawable.default_profile_pic);
         }
+
     }
 
+    private void setProfileImage(String url) {
 
-    private void setProfileImage() {
-        String url=sharedPreferences.getString("url","0");
         if(!url.equals("0")){
             Picasso.with(this).invalidate(url);
             Picasso.with(this)
@@ -187,6 +169,16 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         else {
             profile.setImageResource(R.drawable.default_profile_pic);
         }
+    }
+
+    private void loadProfilePicFromNetwork(String url){
+        Picasso.with(this)
+                .load(url)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .placeholder(R.drawable.default_profile_pic) // optional
+                .error(R.drawable.break_profile)// optional
+                .into(profile);
     }
 
     @Override
@@ -298,6 +290,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     public void onResponse(String s) {
                         //Disimissing the progress dialog
                         loading.dismiss();
+                        profile.setImageBitmap(bitmap);
                         //Showing toast message of the response
                         try {
                             JSONObject jsonObject=new JSONObject(s);
@@ -306,6 +299,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                                 editor.putString("url",jsonObject.getString("url"));
                                 editor.putString("img_string",jsonObject.getString("img_string"));
                                 editor.commit();
+                                loadProfilePicFromNetwork(jsonObject.getString("url"));
                             }else{
                                 Toast.makeText(ProfileActivity.this, jsonObject.getString("error"), Toast.LENGTH_SHORT).show();
                             }

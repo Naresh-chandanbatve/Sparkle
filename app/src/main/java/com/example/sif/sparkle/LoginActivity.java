@@ -86,6 +86,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void loginUser() {
 
+        pd.setTitle("Logging in");
         pd.setMessage("Please wait...");
         pd.show();
 

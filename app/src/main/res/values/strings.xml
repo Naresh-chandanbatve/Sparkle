@@ -24,4 +24,9 @@
 
     <string name="facebook_app_id">110055452936295</string>
 
+    <string name="product">product_constant</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

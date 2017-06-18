@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
         void onItemClick(Product product, int position);
     }
 
-    ProductAdaptor(ArrayList<Product> list ,Context ctx,OnItemClickListener listener){
+    public ProductAdaptor(ArrayList<Product> list ,Context ctx,OnItemClickListener listener){
         this.list=list;
         this.ctx=ctx;
         this.listener=listener;
@@ -64,8 +66,15 @@ public class ProductAdaptor extends RecyclerView.Adapter<ProductAdaptor.ProductV
 
         if(p.getProductImage()!=null)
             holder.image.setImageBitmap(p.getProductImage());
-        else
-            holder.image.setImageResource(R.mipmap.ic_launcher);
+        else {
+            //holder.image.setImageResource(R.drawable.break_profile);
+            Picasso.with(ctx).invalidate(p.getProductImageUrl());
+            Picasso.with(ctx)
+                    .load(p.getProductImageUrl())
+                    .placeholder(R.drawable.default_profile_pic) // optional
+                    .error(R.drawable.break_profile)// optional
+                    .into(holder.image);
+        }
 
         holder.price.setText("Rs. "+p.getSellingPrice());
 

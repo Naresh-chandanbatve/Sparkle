@@ -1,5 +1,6 @@
 package com.example.sif.sparkle;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -9,6 +10,8 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,20 +23,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.sif.sparkle.Fragments.MenFragment;
+import com.example.sif.sparkle.Fragments.WomenFragment;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private boolean doubleBackToExitPressedOnce=false;
+    private boolean doubleBackToExitPressedOnce = false;
     private CoordinatorLayout content;
-    private RecyclerView recyclerView;
-    private ProductAdaptor adaptor;
-    private LinearLayoutManager layoutManager;
+    private View header;
+    private TextView hName,hEmail;
+    private RoundedImageView profilePic,profilePicWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +61,6 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -52,48 +71,52 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.setCheckedItem(R.id.nav_men);
+        
         //Initialization
-        content=(CoordinatorLayout)findViewById(R.id.coordinatorLayout);
-        recyclerView=(RecyclerView)findViewById(R.id.rv_product);
-        layoutManager=new LinearLayoutManager(HomeActivity.this);
+        header=navigationView.getHeaderView(0);
+        hName=(TextView) header.findViewById(R.id.header_name);
+        hEmail=(TextView)header.findViewById(R.id.header_email);
+        profilePic=(RoundedImageView)header.findViewById(R.id.header_profile);
+        profilePicWrapper=(RoundedImageView)header.findViewById(R.id.header_profile_wrapper);
+        content = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
 
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.hasFixedSize();
 
-        Bitmap icon= BitmapFactory.decodeResource(getResources(), R.drawable.login);
+        SharedPreferences sharedPreferences=getApplicationContext()
+                .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
+        hName.setText(sharedPreferences.getString("name","ABC"));
+        hEmail.setText(sharedPreferences.getString("email","abc@xyz.com"));
+        profilePicWrapper.setImageResource(R.drawable.white);
 
-        Product one =new Product(1,"IceCream","Amul IceCream","Amul IceCream with chocolate syrup",4.2,50,icon,20);
-        Product two =new Product(2,"IceCream","Vadilal IceCream","Vadilal IceCream with chocolate syrup",2.5,50,null,0);
-        Product three =new Product(3,"Laptop","Acer Laptop","Acer Laptop with High end specifications",5.0,50000,null,25);
-        Product four =new Product(4,"Milk","Amul milk","Amul milk with cream",3.5,26,null,0);
-        Product five =new Product(5,"Curd","Amul Dahi","Amul IceCream with chocolate syrup",3.6,10,null,0);
-        Product six =new Product(8,"Soap","Dettol Soap","Amul IceCream with chocolate syrup",4.8,20,null,0);
-        Product seven =new Product(7,"HandWash","Dettol HandWash","Amul IceCream with chocolate syrup",2.2,60,null,0);
-        Product eight =new Product(8,"Ghee","Amul Ghee","Amul IceCream with chocolate syrup",2.6,200,null,0);
+        if(!sharedPreferences.getString("url","0").equals("0")) {
+            String url=sharedPreferences.getString("url","0");
+                Picasso.with(this).invalidate(url);
+                Picasso.with(this)
+                        .load(url)
+                        .placeholder(R.drawable.default_profile_pic) // optional
+                        .error(R.drawable.break_profile)// optional
+                        .into(profilePic);
 
-        ArrayList<Product> products=new ArrayList<>();
-        products.add(one);
-        products.add(two);
-        products.add(three);
-        products.add(four);
-        products.add(five);
-        products.add(six);
-        products.add(seven);
-        products.add(eight);
-        products.add(one);
-        products.add(one);
-        products.add(one);
-        products.add(one);
-        products.add(one);
-        products.add(one);
+                profilePic.setImageResource(R.drawable.default_profile_pic);
 
-        adaptor=new ProductAdaptor(products, HomeActivity.this, new ProductAdaptor.OnItemClickListener() {
+        }
+        else {
+            profilePic.setImageResource(R.drawable.default_profile_pic);
+        }
+
+        profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(Product product,int position) {
-                Toast.makeText(HomeActivity.this,"Item "+position+" clicked",Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                Intent i = new Intent(HomeActivity.this, ProfileActivity.class);
+                startActivity(i);
             }
         });
-        recyclerView.setAdapter(adaptor);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Fragment fragment=new MenFragment();
+        fragmentTransaction.replace(R.id.fl_container,fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -101,7 +124,7 @@ public class HomeActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else  if (doubleBackToExitPressedOnce) {
+        } else if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
             finish();
             finishAffinity();
@@ -117,7 +140,7 @@ public class HomeActivity extends AppCompatActivity
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
@@ -138,16 +161,16 @@ public class HomeActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_profile) {
-            Intent i= new Intent(HomeActivity.this,ProfileActivity.class);
+            Intent i = new Intent(HomeActivity.this, ProfileActivity.class);
             startActivity(i);
         }
-        if (id== R.id.action_logout){
-            SharedPreferences sharedPreferences=getApplicationContext().
-                    getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
-            SharedPreferences.Editor editor=sharedPreferences.edit();
-            editor.putString("uid","-1");
+        if (id == R.id.action_logout) {
+            SharedPreferences sharedPreferences = getApplicationContext().
+                    getSharedPreferences(getString(R.string.shared_pref), MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("uid", "-1");
             editor.commit();
-            Intent i = new Intent(HomeActivity.this,UserLogin.class);
+            Intent i = new Intent(HomeActivity.this, UserLogin.class);
             startActivity(i);
             finishAffinity();
         }
@@ -160,20 +183,24 @@ public class HomeActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_men) {
+            Fragment fragment=new MenFragment();
+            fragmentTransaction.replace(R.id.fl_container,fragment);
+        } else if (id == R.id.nav_women) {
+            Fragment fragment=new WomenFragment();
+            fragmentTransaction.replace(R.id.fl_container,fragment);
+        } else if (id == R.id.nav_cart) {
 
-        } else if (id == R.id.nav_slideshow) {
+        }  else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_about) {
 
         }
+
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
