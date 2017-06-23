@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -28,6 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -44,6 +46,10 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class HomeActivity extends AppCompatActivity
@@ -54,6 +60,14 @@ public class HomeActivity extends AppCompatActivity
     private View header;
     private TextView hName,hEmail;
     private RoundedImageView profilePic,profilePicWrapper;
+    private Cart mCart;
+    private String GET_CART_URL="https://techstart.000webhostapp.com/get_cart.php";
+    private String GET_USER_RATING="https://techstart.000webhostapp.com/get_user_rating.php";
+    private ProgressDialog pd;
+    private ArrayList<Product> products;
+    private String response;
+    private NavigationView navigationView;
+    private FloatingActionButton cartFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +82,8 @@ public class HomeActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        navigationView.setCheckedItem(R.id.nav_men);
         
         //Initialization
         header=navigationView.getHeaderView(0);
@@ -80,7 +92,13 @@ public class HomeActivity extends AppCompatActivity
         profilePic=(RoundedImageView)header.findViewById(R.id.header_profile);
         profilePicWrapper=(RoundedImageView)header.findViewById(R.id.header_profile_wrapper);
         content = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
-
+        mCart=new Cart();
+        pd = new ProgressDialog(this);
+        pd.setTitle("Loading cart");
+        pd.setMessage("Please wait...");
+        pd.setCanceledOnTouchOutside(false);
+        products=new ArrayList<>();
+        cartFab=(FloatingActionButton)findViewById(R.id.fab_cart);
 
         SharedPreferences sharedPreferences=getApplicationContext()
                 .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
@@ -112,11 +130,29 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
+        cartFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callCartActivity();
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        requestUserRating();
+        Toast.makeText(this,"HomeActivity: "+mCart.getItemNumber(),Toast.LENGTH_SHORT).show();
+        navigationView.setCheckedItem(R.id.nav_men);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Fragment fragment=new MenFragment();
         fragmentTransaction.replace(R.id.fl_container,fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
     }
 
     @Override
@@ -192,7 +228,7 @@ public class HomeActivity extends AppCompatActivity
             Fragment fragment=new WomenFragment();
             fragmentTransaction.replace(R.id.fl_container,fragment);
         } else if (id == R.id.nav_cart) {
-
+            callCartActivity();
         }  else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_about) {
@@ -205,5 +241,197 @@ public class HomeActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void callCartActivity(){
+        Intent intent=new Intent(HomeActivity.this,CartActivity.class);
+        intent.putExtra("cart",mCart);
+        startActivity(intent);
+    }
+
+    private void getCart() {
+
+        pd.show();
+        StringRequest stringRequest= new StringRequest(Request.Method.POST, GET_CART_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        pd.dismiss();
+                        try {
+                            JSONObject jsonObject=new JSONObject(response);
+                            if(jsonObject.getString("status").equals("ok")){
+                                int count=Integer.parseInt(jsonObject.getString("count"));
+                                mCart.clear();
+                                for(int i=0;i<count;i++){
+                                    JSONObject object=jsonObject.getJSONObject(i+"");
+                                    Product p=getProduct(Integer.parseInt(object.getString("pid")),Integer.parseInt(object.getString("quantity")));
+                                    if(p!=null){
+                                        mCart.addToCart(p);
+                                    }
+                                }
+                                Toast.makeText(HomeActivity.this,"Cart: success",Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                mCart.clear();
+                                Toast.makeText(HomeActivity.this,"Cart: "+jsonObject.getString("error"),Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(HomeActivity.this,"Cart: exception",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(HomeActivity.this,"Cart: "+getString(R.string.err_connection),Toast.LENGTH_SHORT).show();
+                pd.dismiss();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                SharedPreferences sharedPreferences=getApplicationContext()
+                        .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
+                params.put("uid",sharedPreferences.getString("uid","-1"));
+                return params;
+            }
+        };
+
+        RequestQueue request= Volley.newRequestQueue(this);
+        request.add(stringRequest);
+
+    }
+
+    @Nullable
+    private Product getProduct(int pid, int quantity){
+        for(int i=0;i<products.size();i++){
+            Product p=products.get(i);
+            if(pid==p.getId()){
+                p.setQuantity(quantity);
+                return p;
+            }
+        }
+        return null;
+    }
+
+
+    private void parseResponseFromCache() throws JSONException {
+        SharedPreferences sharedPreferences=getApplicationContext()
+                .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
+        response=sharedPreferences.getString("response","");
+
+        if(!response.equals("")) {
+            JSONObject jsonObject = new JSONObject(response);
+            if (jsonObject.getString("status").equals("ok")) {
+                int count = Integer.parseInt(jsonObject.getString("count"));
+                for (int i = 0; i < count; i++) {
+                    JSONObject object = jsonObject.getJSONObject(i + "");
+                        Product p = new Product(this);
+                        p.setId(Integer.parseInt(object.getString("pid")));
+                        p.setProductName(object.getString("pname"));
+                        p.setShortDescription(object.getString("sdesc"));
+                        p.setLongDescription(object.getString("ldesc"));
+                        p.setRating(Double.parseDouble(object.getString("rating")));
+                        p.setPrice(Double.parseDouble(object.getString("price")));
+                        p.setDicount(Double.parseDouble(object.getString("discount")));
+                        p.setSuitedFor(object.getString("gender"));
+                        p.setProductImageUrl(object.getString("purl"));
+                        p.setProduct();
+                        products.add(p);
+                }
+
+            } else {
+                String errorString = jsonObject.getString("error");
+                Toast.makeText(this, errorString, Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            Toast.makeText(this,"No response in cart",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void parseResponse(){
+        try {
+            parseResponseFromCache();
+            getCart();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public  void addToCart(Product product){
+        mCart.addToCart(product);
+    }
+
+    public Boolean isInCart(Product product){
+        if(mCart.isInCart(product)){
+            return true;
+        }
+        return false;
+    }
+
+    public Cart getmCart(){return mCart;}
+
+//    private void requestUserRaing(){
+//
+//        StringRequest request=new StringRequest(Request.Method.POST, GET_USER_RATING, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//                SharedPreferences sharedPreferences = getApplicationContext()
+//                        .getSharedPreferences(getString(R.string.shared_pref), MODE_PRIVATE);
+//                SharedPreferences.Editor editor=sharedPreferences.edit();
+//                editor.putString("userRating",response);
+//                editor.commit();
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//
+//            }
+//        }){
+//            @Override
+//            protected Map<String, String> getParams() throws AuthFailureError {
+//                Map<String,String> params=new HashMap<>();
+//                SharedPreferences sharedPreferences = getApplicationContext()
+//                        .getSharedPreferences(getString(R.string.shared_pref), MODE_PRIVATE);
+//                params.put("uid",sharedPreferences.getString("uid","-1"));
+//                return params;
+//            }
+//        };
+//
+//        RequestQueue requestQueue=Volley.newRequestQueue(this);
+//        requestQueue.add(request);
+//    }
+
+    private void requestUserRating(){
+
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, GET_USER_RATING,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        SharedPreferences sharedPreferences = getApplicationContext()
+                        .getSharedPreferences(getString(R.string.shared_pref), MODE_PRIVATE);
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putString("userRating",response);
+                editor.commit();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params=new HashMap<>();
+                SharedPreferences sharedPreferences = getApplicationContext()
+                        .getSharedPreferences(getString(R.string.shared_pref), MODE_PRIVATE);
+                params.put("uid",sharedPreferences.getString("uid","-1"));
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue=Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
     }
 }

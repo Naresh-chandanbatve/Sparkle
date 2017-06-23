@@ -116,18 +116,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         editProfilePicButton=(ImageButton)editProfileLayout.findViewById(R.id.ib_inflate_profie_edit);
         inflateProfileImage=(ImageView)editProfileLayout.findViewById(R.id.iv_inflate_profile);
 
-        sharedPreferences=getApplicationContext()
-                .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
-
-        name.setText(sharedPreferences.getString("name","ABC"));
-        email.setText(sharedPreferences.getString("email","abc@xyz.com"));
-        mob.setText(sharedPreferences.getString("contact","0000000000"));
-        add1.setText(sharedPreferences.getString("add1","Add1"));
-        add2.setText(sharedPreferences.getString("add2","Add2"));
-        city.setText(sharedPreferences.getString("city","city"));
-        state.setText(sharedPreferences.getString("state","state"));
-        pin.setText(sharedPreferences.getString("pin","pin"));
-
         passLayout.setOnClickListener(this);
 
         changePassword.setOnClickListener(this);
@@ -145,6 +133,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         editProfilePicButton.setOnClickListener(this);
 
         pd.setMessage("Please wait...");
+        sharedPreferences=getApplicationContext()
+                .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
 
         if(!sharedPreferences.getString("url","0").equals("0")) {
             String url=sharedPreferences.getString("url","0");
@@ -154,6 +144,22 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             profile.setImageResource(R.drawable.default_profile_pic);
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sharedPreferences=getApplicationContext()
+                .getSharedPreferences(getString(R.string.shared_pref),MODE_PRIVATE);
+
+        name.setText(sharedPreferences.getString("name","ABC"));
+        email.setText(sharedPreferences.getString("email","abc@xyz.com"));
+        mob.setText(sharedPreferences.getString("contact","0000000000"));
+        add1.setText(sharedPreferences.getString("add1","Add1"));
+        add2.setText(sharedPreferences.getString("add2","Add2"));
+        city.setText(sharedPreferences.getString("city","city"));
+        state.setText(sharedPreferences.getString("state","state"));
+        pin.setText(sharedPreferences.getString("pin","pin"));
     }
 
     private void setProfileImage(String url) {

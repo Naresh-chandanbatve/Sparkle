@@ -73,7 +73,6 @@ public class EditProfile extends AppCompatActivity implements View.OnClickListen
         stateWrapper=(TextInputLayout)findViewById(R.id.stateWrapper);
         pinWrapper=(TextInputLayout)findViewById(R.id.pinWrapper);
 
-
         setValues();
 
         hideKeyboard();

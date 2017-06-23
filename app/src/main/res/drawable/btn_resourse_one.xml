@@ -3,6 +3,4 @@
     android:shape="rectangle">
     <!-- you can use any color you want I used here gray color-->
     <solid android:color="@color/colorPrimary"/>
-    <corners android:bottomLeftRadius="15dp"
-        android:bottomRightRadius="15dp"/>
 </shape>

@@ -39,7 +39,10 @@
         </activity>
         <activity android:name=".UserLogin" />
         <activity android:name=".EditProfile" />
-        <activity android:name=".ProductDisplayActivity"
+        <activity
+            android:name=".ProductDisplayActivity"
+            android:parentActivityName=".HomeActivity" />
+        <activity android:name=".CartActivity"
             android:parentActivityName=".HomeActivity"></activity>
     </application>
 

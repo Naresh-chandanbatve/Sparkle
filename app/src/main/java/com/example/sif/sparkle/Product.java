@@ -27,6 +27,9 @@ public class Product implements Parcelable{
     private String productImageUrl;
     private Target loadtarget;
     private Context ctx;
+    private int quantity;
+    private double userRating;
+    private double totalRating;
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -40,6 +43,9 @@ public class Product implements Parcelable{
         dest.writeDouble(sellingPrice);
         dest.writeString(suitedFor);
         dest.writeString(productImageUrl);
+        dest.writeInt(quantity);
+        dest.writeDouble(userRating);
+        dest.writeDouble(totalRating);
     }
 
     public Product(Parcel in) {
@@ -53,6 +59,10 @@ public class Product implements Parcelable{
         sellingPrice=in.readDouble();
         suitedFor= in.readString();
         productImageUrl = in.readString();
+        quantity=in.readInt();
+        userRating=in.readDouble();
+        totalRating=in.readDouble();
+        setDiscountedPrice();
     }
 
     public Product(Context ctx){
@@ -68,6 +78,8 @@ public class Product implements Parcelable{
         rating=0.0;
         dicount=0.0;
         productImage=null;
+        userRating=0;
+        totalRating=rating;
         setDiscountedPrice();
     }
 
@@ -80,6 +92,8 @@ public class Product implements Parcelable{
         this.price = price;
         this.productImageUrl=productImageUrl;
         this.dicount=dicount;
+        userRating=0;
+        totalRating=rating;
         setDiscountedPrice();
     }
 
@@ -94,6 +108,30 @@ public class Product implements Parcelable{
     public void setProduct(){
         setDiscountedPrice();
         loadProductImage();
+    }
+
+    public double getTotalRating() {
+        return totalRating;
+    }
+
+    public void setTotalRating(double totalRating) {
+        this.totalRating = totalRating;
+    }
+
+    public double getUserRating() {
+        return userRating;
+    }
+
+    public void setUserRating(double userRating) {
+        this.userRating = userRating;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getSuitedFor() {
@@ -122,6 +160,7 @@ public class Product implements Parcelable{
 
     public void setDicount(double dicount) {
         this.dicount = dicount;
+        setDiscountedPrice();
     }
 
     private void setDiscountedPrice(){

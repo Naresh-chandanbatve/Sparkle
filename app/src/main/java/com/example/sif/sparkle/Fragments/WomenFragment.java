@@ -21,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.sif.sparkle.HomeActivity;
 import com.example.sif.sparkle.Product;
 import com.example.sif.sparkle.ProductAdaptor;
 import com.example.sif.sparkle.ProductDisplayActivity;
@@ -32,6 +33,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -57,6 +60,9 @@ public class WomenFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -92,15 +98,31 @@ public class WomenFragment extends Fragment {
         adaptor = new ProductAdaptor(products, ctx, new ProductAdaptor.OnItemClickListener() {
             @Override
             public void onItemClick(Product product, int position) {
+                HomeActivity activity=(HomeActivity)getActivity();
                 Intent intent=new Intent(getActivity(), ProductDisplayActivity.class);
                 intent.putExtra("product",product);
+                intent.putExtra("isInCart",activity.isInCart(product));
+                intent.putExtra("cart",activity.getmCart());
                 startActivity(intent);
             }
         });
         recyclerView.setAdapter(adaptor);
-
         sendRequest();
     }
+
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == 1) {
+//            if(resultCode == RESULT_OK) {
+//                Product p=data.getParcelableExtra("addProduct");
+//                HomeActivity activity=(HomeActivity)getActivity();
+//                activity.addToCart(p);
+//            }
+//            else if(requestCode == RESULT_CANCELED){
+//                Toast.makeText(ctx,"Not added to cart",Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 
     private void sendRequest() {
         pd.show();
@@ -115,25 +137,34 @@ public class WomenFragment extends Fragment {
                         editor.putString("response", response);
                         editor.commit();
                         try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject object = jsonArray.getJSONObject(i);
-                                if(object.getString("gender").equals("female")) {
-                                    Product p = new Product(ctx);
-                                    p.setId(Integer.parseInt(object.getString("pid")));
-                                    p.setProductName(object.getString("pname"));
-                                    p.setShortDescription(object.getString("sdesc"));
-                                    p.setLongDescription(object.getString("ldesc"));
-                                    p.setRating(Double.parseDouble(object.getString("rating")));
-                                    p.setPrice(Double.parseDouble(object.getString("price")));
-                                    p.setDicount(Double.parseDouble(object.getString("discount")));
-                                    p.setSuitedFor(object.getString("gender"));
-                                    p.setProductImageUrl(object.getString("purl"));
-                                    p.setProduct();
-                                    products.add(p);
+                            JSONObject jsonObject=new JSONObject(response);
+                            if(jsonObject.getString("status").equals("ok")) {
+                                int count = Integer.parseInt(jsonObject.getString("count"));
+                                for(int i=0;i<count;i++) {
+                                    JSONObject object = jsonObject.getJSONObject(i + "");
+                                    if (object.getString("gender").equals("female")) {
+                                        Product p = new Product(ctx);
+                                        p.setId(Integer.parseInt(object.getString("pid")));
+                                        p.setProductName(object.getString("pname"));
+                                        p.setShortDescription(object.getString("sdesc"));
+                                        p.setLongDescription(object.getString("ldesc"));
+                                        p.setRating(Double.parseDouble(object.getString("rating")));
+                                        p.setPrice(Double.parseDouble(object.getString("price")));
+                                        p.setDicount(Double.parseDouble(object.getString("discount")));
+                                        p.setSuitedFor(object.getString("gender"));
+                                        p.setProductImageUrl(object.getString("purl"));
+                                        p.setTotalRating(Double.parseDouble(object.getString("total_rating")));
+                                        p.setProduct();
+                                        products.add(p);
+                                    }
                                 }
+
+                                adaptor.notifyDataSetChanged();
                             }
-                            adaptor.notifyDataSetChanged();
+                            else {
+                                String errorString=jsonObject.getString("error");
+                                Toast.makeText(ctx,errorString,Toast.LENGTH_SHORT).show();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -158,23 +189,34 @@ public class WomenFragment extends Fragment {
 
         if(!response.equals("-1")){
             try {
-                JSONArray jsonArray = new JSONArray(response);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject object = jsonArray.getJSONObject(i);
-                    Product p = new Product(ctx);
-                    p.setId(Integer.parseInt(object.getString("pid")));
-                    p.setProductName(object.getString("pname"));
-                    p.setShortDescription(object.getString("sdesc"));
-                    p.setLongDescription(object.getString("ldesc"));
-                    p.setRating(Double.parseDouble(object.getString("rating")));
-                    p.setPrice(Double.parseDouble(object.getString("price")));
-                    p.setDicount(Double.parseDouble(object.getString("discount")));
-                    p.setSuitedFor(object.getString("gender"));
-                    p.setProductImageUrl(object.getString("purl"));
-                    p.setProduct();
-                    products.add(p);
+                JSONObject jsonObject=new JSONObject(response);
+                if(jsonObject.getString("status").equals("ok")) {
+                    int count = Integer.parseInt(jsonObject.getString("count"));
+                    for(int i=0;i<count;i++) {
+                        JSONObject object = jsonObject.getJSONObject(i + "");
+                        if (object.getString("gender").equals("male")) {
+                            Product p = new Product(ctx);
+                            p.setId(Integer.parseInt(object.getString("pid")));
+                            p.setProductName(object.getString("pname"));
+                            p.setShortDescription(object.getString("sdesc"));
+                            p.setLongDescription(object.getString("ldesc"));
+                            p.setRating(Double.parseDouble(object.getString("rating")));
+                            p.setPrice(Double.parseDouble(object.getString("price")));
+                            p.setDicount(Double.parseDouble(object.getString("discount")));
+                            p.setSuitedFor(object.getString("gender"));
+                            p.setProductImageUrl(object.getString("purl"));
+                            p.setTotalRating(Double.parseDouble(object.getString("total_rating")));
+                            p.setProduct();
+                            products.add(p);
+                        }
+                    }
+
+                    adaptor.notifyDataSetChanged();
                 }
-                adaptor.notifyDataSetChanged();
+                else {
+                    String errorString=jsonObject.getString("error");
+                    Toast.makeText(ctx,errorString,Toast.LENGTH_SHORT).show();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
