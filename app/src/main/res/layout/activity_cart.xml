@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/maple_background"
     android:orientation="vertical">
+
     <android.support.v7.widget.CardView
         android:id="@+id/cv_noProduct"
         android:layout_width="match_parent"
@@ -34,9 +35,9 @@
         android:id="@+id/sv_cart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_weight="6"
         android:scrollbars="none"
         android:visibility="visible">
 
@@ -49,8 +50,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_cart"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                android:layout_height="wrap_content">
             </android.support.v7.widget.RecyclerView>
 
             <android.support.v7.widget.CardView
@@ -165,12 +165,10 @@
             </android.support.v7.widget.CardView>
         </LinearLayout>
     </ScrollView>
-
     <include
         android:id="@+id/button_include"
         layout="@layout/cart_button"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="75dp"
         android:visibility="visible" />
 </LinearLayout>

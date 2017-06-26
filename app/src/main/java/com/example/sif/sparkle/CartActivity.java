@@ -84,6 +84,9 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(CartActivity.this,"Continue button clicked",Toast.LENGTH_SHORT).show();
+                Intent i =new Intent(CartActivity.this,OrderActivity.class);
+                i.putExtra("cart",mCart);
+                startActivity(i);
             }
         });
 

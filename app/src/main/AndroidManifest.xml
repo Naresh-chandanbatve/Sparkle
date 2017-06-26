@@ -42,7 +42,13 @@
         <activity
             android:name=".ProductDisplayActivity"
             android:parentActivityName=".HomeActivity" />
-        <activity android:name=".CartActivity"
+        <activity
+            android:name=".CartActivity"
+            android:parentActivityName=".HomeActivity" />
+        <activity
+            android:name=".OrderActivity"
+            android:parentActivityName=".CartActivity" />
+        <activity android:name=".AboutUsActivity"
             android:parentActivityName=".HomeActivity"></activity>
     </application>
 
